@@ -1,0 +1,5 @@
+*.txt
+VIDEOS/*
+FRAMES/*
+UPSCALED_FRAMES/*
+BLOCKS/*
