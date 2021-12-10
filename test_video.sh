@@ -1,11 +1,17 @@
 #!/bin/bash
 
 WORKSPACE=$(pwd)
-NUMBER_OF_FRAMES=1
+NUMBER_OF_FRAMES=3
 VIDEOS_DICT="${WORKSPACE}/VIDEOS"
 source "${WORKSPACE}/common.sh"
 
-#prepare_directories "FRAMES"
+function check_property_frames_parameter {
+    if [[ ${NUMBER_OF_FRAMES} == 0 ]]; then
+        echo "Frames to extract is equal to zero"
+        echo "Change number of frames to extract"
+        exit 1
+    fi
+}
 
 function get_movie_duration() {
     ffprobe -loglevel error -i "${1}" \
@@ -25,15 +31,23 @@ function create_output_directory() {
             find "${1}" -type f | \
             wc -l
         )
+        echo "${actual_number_of_frames}"
 
-        if [[ ${actual_number_of_frames} == 0 ]]; then
-            echo "There is nothing in this directory"
-        elif [[ "$NUMBER_OF_FRAMES" == $actual_number_of_frames ]]; then
+        check_property_frames_parameter
+
+        if [[ "$NUMBER_OF_FRAMES" == "${actual_number_of_frames}" ]]; then
             echo "Everything is good"
+            return 0
         else
             echo "Number of frames is not property"
-            echo -e "Removing the content of directory!\n"
-            rm -r "${1}"/*
+            echo "${actual_number_of_frames}"
+            if [[ "${actual_number_of_frames}" == 0 ]]; then
+                echo "There is nothing in this directory"
+            else
+                echo -e "Removing the content of directory!\n"
+                rm -r "${1}"/*
+            fi
+        return 1
         fi
     else
         mkdir "${1}"
@@ -50,12 +64,13 @@ for dict in "${VIDEOS_DICT}"/*; do
             resolution_sufix=$(get_file_from_fullpath "${video%.*}")
 
             new_directory="${WORKSPACE}/FRAMES/${file_name}_${resolution_sufix}"
-            create_output_directory "${new_directory}"
-            #TODO: If numbers of frames are correct then don't make ffmpeg again...
-            ffmpeg -i "${video}" \
-                   -ss 5 \
-                   -vf fps=${step} \
-                   "${new_directory}/${file_name}_${resolution_sufix}"_%2d.png
+            if ! create_output_directory "${new_directory}"; then
+                ffmpeg -i "${video}" \
+                       -ss 5 \
+                       -vf fps=${step} \
+                       -hide_banner \
+                       "${new_directory}/${file_name}_${resolution_sufix}"_%2d.png
+            fi
         done
     fi
 done
