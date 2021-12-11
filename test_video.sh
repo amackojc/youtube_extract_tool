@@ -51,6 +51,7 @@ function create_output_directory() {
         fi
     else
         mkdir "${1}"
+        return 1
     fi
 }
 
