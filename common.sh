@@ -2,16 +2,9 @@
 
 # There I will be storing repeated func from other scripts
 
-function prepare_directories() {
-    folder_name="${1}"
-    if [[ -d "${WORKSPACE}/${folder_name}" ]]
-    then
-        echo "Directory already exists"
-        if [[ ! -z "$(ls "${WORKSPACE}/${folder_name}")" ]]; then
-            rm -r "${WORKSPACE}/${folder_name}"/*
-        fi
-    else
-        mkdir -p "${WORKSPACE}/${folder_name}"
+function create_directory() {
+    if [[ ! -d "${1}" ]]; then
+        mkdir -p "${1}"
     fi
 }
 
