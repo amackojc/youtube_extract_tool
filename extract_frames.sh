@@ -1,14 +1,19 @@
 #!/bin/bash
 
 WORKSPACE=$(pwd)
-NUMBER_OF_FRAMES=2
+INPUT_FOLDER='VIDEOS'
+OUTPUT_FOLDER="FRAMES"
+NUMBER_OF_FRAMES=3
+VIDEOS_DIR="${WORKSPACE}/${INPUT_FOLDER}"
 source "${WORKSPACE}/common.sh"
 
-prepare_directories "FRAMES"
-excluded_directories=(
-    "${WORKSPACE}/FRAMES \
-     ${WORKSPACE}/BLOCKS \
-     ${WORKSPACE}/UPSCALED_FRAMES")
+function check_property_frames_parameter {
+    if [[ ${NUMBER_OF_FRAMES} == 0 ]]; then
+        echo "Frames to extract is equal to zero"
+        echo "Change number of frames to extract"
+        exit 1
+    fi
+}
 
 function get_movie_duration() {
     ffprobe -loglevel error -i "${1}" \
@@ -21,38 +26,69 @@ function calculate_step_for_frames() {
     bc <<< "scale=4; 1/(${1}/${2})"
 }
 
-for dict in "${WORKSPACE}"/*; do
-    #if [ -d "${dict}" ] && 
-    #   [[ "${dict}" != "${WORKSPACE}/FRAMES" ]] &&
-    #   [[ "${dict}" != "${WORKSPACE}/BLOCKS" ]] &&
-    #   [[ "${dict}" != "${WORKSPACE}/UPSCALED_FRAMES" ]]; then
-    if [ -d "${dict}" ] && [[ ! "${excluded_directories[*]}" =~ "${dict}" ]]; then
-        # If dict if directory
-        for file in "${dict}"/*; do
-            duration=$(get_movie_duration "${file}")
-            #step=$(bc <<< "scale=4; 1/(${duration}/2)")
-            step=$(get_movie_duration "${duration}" "${NUMBER_OF_FRAMES}")
-            file_name=$(
-                echo ${dict} | \
-                     awk -F '/' '{ print$NF }'
-            )
-            file_test=$(echo ${file%.*} | awk -F '/' '{ print$NF }')
-            echo "${file_test}"
-            ffmpeg -i "${file}" -ss 5 -vf fps=${step} "${WORKSPACE}/FRAMES/${file_name}_${file_test}"_%2d.png
-        done
+function check_amount_of_frames () {
+    if [[ "$NUMBER_OF_FRAMES" == "${2}" ]]; then
+        echo "Everything is good"
+        return 0
+    else
+        echo "Number of frames is not property"
+        echo "${2}"
+        if [[ "${2}" == 0 ]]; then
+            echo "There is nothing in this directory"
+        else
+            echo -e "Removing the content of directory!\n"
+            rm -r "${1:?}"/*
+        fi
+        return 1
     fi
-done
 
-# Below command will display duration in sec of specific video
-# ffprobe -loglevel error -i <video_name> -show_format | grep duration
+}
 
-# 1. Split video duration in list with 100 elements
-# step=$(bc <<< "scale=4; ${duration}/6")
-# list=($(seq 0 ${step} ${duration}))
-# 2. Select 10-20 elements from above list randomly
-# 3. Use these randomly chosen elemets to extract frames using ffmpeg
+function create_output_directory() {
+    if [ -d "${1}" ]; then
+        # Count number of frames in dict
+        actual_number_of_frames=$(
+            find "${1}" -type f | \
+            wc -l
+        )
 
-# 21.11
-# - Split this only code to functions..
-# - ffmpeg -ss 5 -i <video_file> <output_file.png> for extract frame
-# - Additional folder for extracting frames
+        check_property_frames_parameter
+        if check_amount_of_frames "${1}" "${actual_number_of_frames}"; then
+            return 0
+        else
+            return 1
+        fi
+    else
+        mkdir "${1}"
+        return 1
+    fi
+}
+
+function run {
+
+    create_directory "${WORKSPACE}/${OUTPUT_FOLDER}"
+
+    for dict in "${VIDEOS_DIR}"/*; do
+        if [ -d "${dict}" ]; then
+            for video in "${dict}"/*; do
+                duration=$(get_movie_duration "${video}")
+                step=$(calculate_step_for_frames "${duration}" "${NUMBER_OF_FRAMES}")
+
+                file_name=$(get_file_from_fullpath "${dict}")
+                resolution_sufix=$(get_file_from_fullpath "${video%.*}")
+
+                new_directory="${WORKSPACE}/FRAMES/${file_name}_${resolution_sufix}"
+                if ! create_output_directory "${new_directory}"; then
+                echo "hehe"
+                    ffmpeg -i "${video}" \
+                           -ss 5 \
+                           -vf fps="${step}" \
+                           -hide_banner \
+                           "${new_directory}/${file_name}_${resolution_sufix}"_%2d.png
+                fi
+            done
+        fi
+    done
+}
+
+run
