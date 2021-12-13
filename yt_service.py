@@ -1,10 +1,21 @@
 #!/usr/bin/python
 
+import sys
+import logging
 import os
 import pathlib
+from test_some import INVALID_SIGNS
 from pytube import YouTube
 
 WORKSPACE = os.getcwd()
+INVALID_SIGNS = [
+            '/',
+            ':',
+            '.',
+            ',',
+            '|',
+            '!'
+        ]
 EXCLUDED_RESOLUTIONS = [
             None,
             '4320p'
@@ -34,7 +45,9 @@ def select_video_standard(yt_object, video_standard):
 
 def prepare_video_name(current_name):
     output_name = " ".join(current_name.split())
-    output_name = output_name.replace('/', '')
+    for sign in INVALID_SIGNS:
+        if sign in output_name:
+            output_name = output_name.replace(sign, '')
     return output_name
 
 
@@ -57,9 +70,18 @@ def download_videos(yt_id, codec):
 
 
 if __name__ == '__main__':
-    with open(
-            'yt_videos_to_download.txt',
-            encoding='utf-8') as videos_to_download:
-        for video_id in videos_to_download:
-            download_videos(video_id, CODEC)
-            # list_possible_formats(video_id, CODEC)
+    try:
+        list_of_videos=str(sys.argv[1])
+    except:
+        logging.exception("You haven't pass the necessary argument")
+        raise
+
+    try:
+        with open(
+                list_of_videos,
+                encoding='utf-8') as videos_to_download:
+            for video_id in videos_to_download:
+                download_videos(video_id, CODEC)
+    except:
+        logging.exception("Invalid arguments... Check parameters you pass")
+        raise
