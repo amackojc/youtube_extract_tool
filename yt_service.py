@@ -4,13 +4,13 @@ import sys
 import logging
 import os
 import pathlib
-from test_some import INVALID_SIGNS
 from pytube import YouTube
 
 WORKSPACE = os.getcwd()
 INVALID_SIGNS = [
             '/',
             ':',
+            ';',
             '.',
             ',',
             '|',
