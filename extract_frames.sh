@@ -1,9 +1,11 @@
 #!/bin/bash
 
 WORKSPACE=$(pwd)
+
 INPUT_FOLDER='VIDEOS'
-OUTPUT_FOLDER="FRAMES"
-NUMBER_OF_FRAMES=3
+OUTPUT_FOLDER="${WORKSPACE}/BLOCKS"
+
+NUMBER_OF_FRAMES=2
 VIDEOS_DIR="${WORKSPACE}/${INPUT_FOLDER}"
 source "${WORKSPACE}/common.sh"
 
@@ -28,7 +30,8 @@ function calculate_step_for_frames() {
 
 function check_amount_of_frames () {
     if [[ "$NUMBER_OF_FRAMES" == "${2}" ]]; then
-        echo "Everything is good"
+        get_file_from_fullpath "${1}"
+        echo "Amount of frames is appropriate"
         return 0
     else
         echo "Number of frames is not property"
@@ -65,8 +68,7 @@ function create_output_directory() {
 }
 
 function run {
-
-    create_directory "${WORKSPACE}/${OUTPUT_FOLDER}"
+    create_directory "${OUTPUT_FOLDER}"
 
     for dict in "${VIDEOS_DIR}"/*; do
         if [ -d "${dict}" ]; then
@@ -79,7 +81,6 @@ function run {
 
                 new_directory="${WORKSPACE}/FRAMES/${file_name}_${resolution_sufix}"
                 if ! create_output_directory "${new_directory}"; then
-                echo "hehe"
                     ffmpeg -i "${video}" \
                            -ss 5 \
                            -vf fps="${step}" \
