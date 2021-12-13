@@ -3,3 +3,5 @@ VIDEOS/*
 FRAMES/*
 UPSCALED_FRAMES/*
 BLOCKS/*
+DATASET/*
+*pycache*/*
