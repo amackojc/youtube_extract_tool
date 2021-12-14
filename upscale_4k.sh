@@ -14,6 +14,8 @@ source "${WORKSPACE}/common.sh"
 
 function upscale_frame {
     ffmpeg -i "${1}" \
+           -hide_banner \
+           -loglevel error \
            -vf "${SET_SCALE_CONFIG}","${SETSAR_CONFIG}" "${2}"
 }
 
@@ -24,14 +26,17 @@ function frames_upscaling_process {
             output_directory="${2}/${directory_name}_${3}"
             for frame in "${directory}"/*.png; do
                 output_file_name=$(get_file_from_fullpath "${frame}")
+                echo "${output_file_name}: upscaling frame to ${FRAME_OUTPUT_RESOLUTION}..."
                 upscale_frame "${frame}" \
                               "${output_directory}/${output_file_name}"
             done
+            echo "Done!"
         fi
     done
 }
 
 function run {
+    clear
     create_directory "${OUTPUT_FOLDER}"
     clean_up_content "${OUTPUT_FOLDER}"
     prepare_output_directory "${WORKSPACE}/${INPUT_FOLDER}" \

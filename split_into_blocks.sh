@@ -18,7 +18,7 @@ function split_into_block {
 }
 
 function splitting_process {
-    echo "Splliting..."
+    echo "Splliting process:"
     for directory in "${1}"/*; do
         if [ -d "${directory}" ]; then
             directory_name=$(get_file_from_fullpath "${directory}")
@@ -28,16 +28,18 @@ function splitting_process {
             fi
             for image in "${directory}"/*.png; do
                 output_file=$(get_file_from_fullpath "${image}")
-                echo "${output_file}"
+                echo "${output_file}: splitting into blocks..."
                 split_into_block "${image}" \
                                  "${output_directory}/${output_file}"
             done
+            echo "Done!"
         fi
     done
     echo "Done!"
 }
 
 function run {
+    clear
     create_directory "${OUTPUT_FOLDER}"
     clean_up_content "${OUTPUT_FOLDER}"
     prepare_output_directory "${WORKSPACE}/${INPUT_FOLDER}" \

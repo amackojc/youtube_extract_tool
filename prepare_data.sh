@@ -45,11 +45,14 @@ function copy_folders_to_dataset {
 }
 
 function run {
+    clear
     create_directory "${OUTPUT_FOLDER}"
     clean_up_content "${OUTPUT_FOLDER}"
+    echo "Preparing DATASET folder..."
     prepare_dataset_folder "${RESOLUTIONS[*]}" \
                            "${OUTPUT_FOLDER}"
     copy_folders_to_dataset "${WORKSPACE}/${INPUT_FOLDER}"
+    echo "Done!"
 }
 
 run
