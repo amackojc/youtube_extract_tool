@@ -5,7 +5,7 @@ WORKSPACE=$(pwd)
 INPUT_FOLDER='VIDEOS'
 OUTPUT_FOLDER="${WORKSPACE}/BLOCKS"
 
-NUMBER_OF_FRAMES=2
+NUMBER_OF_FRAMES=25
 VIDEOS_DIR="${WORKSPACE}/${INPUT_FOLDER}"
 source "${WORKSPACE}/common.sh"
 
@@ -35,7 +35,6 @@ function check_amount_of_frames () {
         return 0
     else
         echo "Number of frames is not property"
-        echo "${2}"
         if [[ "${2}" == 0 ]]; then
             echo "There is nothing in this directory"
         else
@@ -68,8 +67,8 @@ function create_output_directory() {
 }
 
 function run {
+    clear
     create_directory "${OUTPUT_FOLDER}"
-
     for dict in "${VIDEOS_DIR}"/*; do
         if [ -d "${dict}" ]; then
             for video in "${dict}"/*; do
@@ -78,13 +77,15 @@ function run {
 
                 file_name=$(get_file_from_fullpath "${dict}")
                 resolution_sufix=$(get_file_from_fullpath "${video%.*}")
+                echo "${file_name}_${resolution_sufix}: extracing frames..."
 
                 new_directory="${WORKSPACE}/FRAMES/${file_name}_${resolution_sufix}"
                 if ! create_output_directory "${new_directory}"; then
                     ffmpeg -i "${video}" \
                            -ss 5 \
-                           -vf fps="${step}" \
+                           -r "${step}" \
                            -hide_banner \
+                           -loglevel error \
                            "${new_directory}/${file_name}_${resolution_sufix}"_%2d.png
                 fi
             done
