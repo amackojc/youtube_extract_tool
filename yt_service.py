@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import datetime
 import logging
 import os
 import pathlib
@@ -56,14 +57,18 @@ def download_videos(yt_id, codec):
     candidates_mp4 = select_video_standard(yt_object, VIDEO_STANDARD)
 
     video_name = prepare_video_name(candidates_mp4[0].title)
-    pathlib.Path(f'VIDEOS/{video_name}').mkdir(parents=True, exist_ok=True)
-    os.chdir(f'VIDEOS/{video_name}')
+    video_id = str(yt_id).rstrip()
+    date_check = "{:%Y_%m_%d}".format(datetime.datetime.today())
+
+    pathlib.Path(f'VIDEOS/{video_id}_{date_check}').mkdir(parents=True, exist_ok=True)
+    os.chdir(f'VIDEOS/{video_id}_{date_check}')
 
     print(f"Starting downloading {video_name}!")
     for video in candidates_mp4:
         if any(codec in extension for extension in video.codecs):
             if video.resolution not in EXCLUDED_RESOLUTIONS:
                 print(f"Downloading in quality {video.resolution}...")
+                print(f'VIDEOS/{video_id}_{date_check}')
                 video.download(filename=f'{video.resolution}.mp4')
                 print("Succed!\n")
     os.chdir(WORKSPACE)
@@ -82,6 +87,7 @@ if __name__ == '__main__':
                 encoding='utf-8') as videos_to_download:
             for video_id in videos_to_download:
                 download_videos(video_id, CODEC)
+                #list_possible_formats(video_id, CODEC)
     except:
         logging.exception("Invalid arguments... Check parameters you pass")
         raise
