@@ -1,8 +1,8 @@
 #!/bin/bash
 
 WORKSPACE=$(pwd)
-INPUT_FOLDER='BLOCKS'
-OUTPUT_FOLDER="${WORKSPACE}/DATASET"
+INPUT_FOLDER='DATASET_AGAIN'
+OUTPUT_FOLDER="${WORKSPACE}/DATASET_TEST2"
 source "${WORKSPACE}/common.sh"
 
 RESOLUTIONS=(
@@ -25,21 +25,21 @@ function prepare_dataset_folder {
 function copy_folders_to_dataset {
     for directory in "${1}"/*; do
         if [[ "${directory}" == *"2160p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/2160p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/2160p"
         elif [[ "${directory}" == *"1440p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/1440p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/1440p"
         elif [[ "${directory}" == *"1080p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/1080p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/1080p"
         elif [[ "${directory}" == *"720p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/720p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/720p"
         elif [[ "${directory}" == *"480p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/480p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/480p"
         elif [[ "${directory}" == *"360p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/360p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/360p"
         elif [[ "${directory}" == *"240p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/240p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/240p"
         elif [[ "${directory}" == *"144p"* ]]; then
-            cp -R "${directory}" "${OUTPUT_FOLDER}/144p"
+            cp -R "${directory}"/. "${OUTPUT_FOLDER}/144p"
         fi
     done
 }
