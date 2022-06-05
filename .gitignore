@@ -4,4 +4,7 @@ FRAMES/*
 UPSCALED_FRAMES/*
 BLOCKS/*
 DATASET/*
+TEST/
 *pycache*/*
+.ipynb_checkpoints/*
+*.json
